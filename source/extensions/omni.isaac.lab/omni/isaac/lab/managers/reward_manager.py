@@ -114,7 +114,7 @@ class RewardManager(ManagerBase):
         extras_percent = dict()
         max_extras_value = max(extras.values())
         for k, v in extras.items():
-            extras_percent[k] = v / max_extras_value
+            extras_percent[k + "_percent"] = v / max_extras_value
         extras_percent["standard"] = 1 / len(extras.keys())
         print("extras_percent: {}".format(extras_percent))
         
