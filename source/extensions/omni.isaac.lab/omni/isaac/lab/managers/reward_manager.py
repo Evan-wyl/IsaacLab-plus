@@ -112,10 +112,11 @@ class RewardManager(ManagerBase):
             self._episode_sums[key][env_ids] = 0.0
         
         extras_percent = dict()
-        max_extras_value = max(extras.values())
+        extras_values_abs = [abs(v) for v in extras.values()]
+        max_extras_value = max(extras_values_abs)
         for k, v in extras.items():
             extras_percent[k + "_percent"] = v / max_extras_value
-        extras_percent["standard"] = 1 / len(extras.keys())
+        extras_percent["standard"] = 1 / len(extras_values_abs)
         print("extras_percent: {}".format(extras_percent))
         
         # reset all the reward terms
