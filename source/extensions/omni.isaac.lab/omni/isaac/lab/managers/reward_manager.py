@@ -111,13 +111,21 @@ class RewardManager(ManagerBase):
             # reset episodic sum
             self._episode_sums[key][env_ids] = 0.0
         
-        extras_percent = dict()
-        extras_values_abs = [abs(v) for v in extras.values()]
-        max_extras_value = max(extras_values_abs)
+        print("===========extras_=============")
         for k, v in extras.items():
-            extras_percent[k + "_percent"] = v / max_extras_value
-        extras_percent["standard"] = 1 / len(extras_values_abs)
-        print("extras_percent: {}".format(extras_percent))
+            v_ = v.clone().cpu().item()
+            print("{}: {}".format(k, v_))
+
+        print("===========extras_percent=============")
+        extras_values_abs = [abs(v.clone().cpu().item()) for v in extras.values()]
+        max_extras_value = max(extras_values_abs)
+        print("max_extras_value: {}".format(max_extras_value))
+        if max_extras_value != 0:
+            for k, v in extras.items():
+                v_ = v.clone().cpu().item()
+                print("{}: {}".format(k + "_percent", v_ / max_extras_value))
+        print("standard: {}".format(1 / len(extras_values_abs)))
+
         
         # reset all the reward terms
         for term_cfg in self._class_term_cfgs:
