@@ -119,7 +119,7 @@ class RewardManager(ManagerBase):
         print("===========extras_percent=============")
         extras_values_abs = [abs(v.clone().cpu().item()) for v in extras.values()]
         sum_extras_value = sum(extras_values_abs)
-        print("max_extras_value: {}".format(sum_extras_value))
+        print("sum_extras_value: {}".format(sum_extras_value))
         if sum_extras_value != 0:
             for k, v in extras.items():
                 v_ = abs(v.clone().cpu().item())
