@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import torch
+import numpy as np
 from collections.abc import Sequence
 from prettytable import PrettyTable
 from typing import TYPE_CHECKING
@@ -50,8 +51,10 @@ class RewardManager(ManagerBase):
         super().__init__(cfg, env)
         # prepare extra info to store individual reward term information
         self._episode_sums = dict()
+        self._max_rewards = dict()
         for term_name in self._term_names:
             self._episode_sums[term_name] = torch.zeros(self.num_envs, dtype=torch.float, device=self.device)
+            self._max_rewards["max_" + term_name] = 0
         # create buffer for managing reward per environment
         self._reward_buf = torch.zeros(self.num_envs, dtype=torch.float, device=self.device)
 
@@ -158,6 +161,13 @@ class RewardManager(ManagerBase):
             self._reward_buf += value
             # update episodic sum
             self._episode_sums[name] += value
+            
+            value_ = np.abs(value.clone().cpu().numpy())
+            self._max_rewards["max_" + name] = np.max(value_)
+        
+        print("===========max_rewards=============") 
+        for k, v in self._max_rewards.items():
+            print("{}: {}".format(k, v))
 
         return self._reward_buf
 
