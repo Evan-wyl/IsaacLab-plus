@@ -163,7 +163,8 @@ class RewardManager(ManagerBase):
             self._episode_sums[name] += value
             
             value_ = np.abs(value.clone().cpu().numpy())
-            self._max_rewards_abs["max_" + name] = np.max(value_)
+            current_value_ = self._max_rewards_abs["max_" + name]
+            self._max_rewards_abs["max_" + name] = np.max(np.max(value_), current_value_)
         
         standard_rate = 1 / len(self._max_rewards_abs.keys())
         print("standard_ratio: {}".format(standard_rate))
