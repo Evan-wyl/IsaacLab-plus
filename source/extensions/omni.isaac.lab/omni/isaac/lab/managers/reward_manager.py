@@ -166,13 +166,19 @@ class RewardManager(ManagerBase):
             self._max_rewards["max_" + name] = np.max(value_)
         
         print("===========max_abs_rewards=============")
-        min_reward = np.float64.max.item()
+        min_reward = np.finfo(np.float64).max
         for k, v in self._max_rewards.items():
             print("{}: {}".format(k, v))
             min_reward = min(min_reward, v)
         print("===========max_abs_rewards_ratio=============")
         for k, v in self._max_rewards.items():
             print("{}: {}".format(k, v / min_reward))
+        print("===========max_abs_rewards_ratio_reverse=============")
+        for k, v in self._max_rewards.items():
+            if v == 0:
+                print("{}_r, v:{}".format(k, 0))
+            else:
+                print("{}_r: {}".format(k, min_reward / v))
 
         return self._reward_buf
 
