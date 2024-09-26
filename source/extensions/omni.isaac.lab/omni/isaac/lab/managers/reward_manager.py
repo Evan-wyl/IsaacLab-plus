@@ -114,20 +114,20 @@ class RewardManager(ManagerBase):
             # reset episodic sum
             self._episode_sums[key][env_ids] = 0.0
         
-        print("===========extras_=============")
-        for k, v in extras.items():
-            v_ = v.clone().cpu().item()
-            print("{}: {}".format(k, v_))
+        # print("===========extras_=============")
+        # for k, v in extras.items():
+        #     v_ = v.clone().cpu().item()
+        #     print("{}: {}".format(k, v_))
 
-        print("===========extras_percent=============")
-        extras_values_abs = [abs(v.clone().cpu().item()) for v in extras.values()]
-        sum_extras_value = sum(extras_values_abs)
-        print("sum_extras_value: {}".format(sum_extras_value))
-        if sum_extras_value != 0:
-            for k, v in extras.items():
-                v_ = abs(v.clone().cpu().item())
-                print("{}: {}".format(k + "_percent", v_ / sum_extras_value))
-        print("standard: {}".format(1 / len(extras_values_abs)))
+        # print("===========extras_percent=============")
+        # extras_values_abs = [abs(v.clone().cpu().item()) for v in extras.values()]
+        # sum_extras_value = sum(extras_values_abs)
+        # print("sum_extras_value: {}".format(sum_extras_value))
+        # if sum_extras_value != 0:
+        #     for k, v in extras.items():
+        #         v_ = abs(v.clone().cpu().item())
+        #         print("{}: {}".format(k + "_percent", v_ / sum_extras_value))
+        # print("standard: {}".format(1 / len(extras_values_abs)))
 
         
         # reset all the reward terms
@@ -165,9 +165,14 @@ class RewardManager(ManagerBase):
             value_ = np.abs(value.clone().cpu().numpy())
             self._max_rewards["max_" + name] = np.max(value_)
         
-        print("===========max_rewards=============") 
+        print("===========max_abs_rewards=============")
+        min_reward = 0
         for k, v in self._max_rewards.items():
             print("{}: {}".format(k, v))
+            min_reward = min(min_reward, v)
+        print("===========max_abs_rewards_ratio=============")
+        for k, v in self._max_rewards.items():
+            print("{}: {}".format(k, v / min_reward))
 
         return self._reward_buf
 
