@@ -51,10 +51,10 @@ class RewardManager(ManagerBase):
         super().__init__(cfg, env)
         # prepare extra info to store individual reward term information
         self._episode_sums = dict()
-        self._max_rewards = dict()
+        self._max_rewards_abs = dict()
         for term_name in self._term_names:
             self._episode_sums[term_name] = torch.zeros(self.num_envs, dtype=torch.float, device=self.device)
-            self._max_rewards["max_" + term_name] = 0
+            self._max_rewards_abs["max_" + term_name] = 0
         # create buffer for managing reward per environment
         self._reward_buf = torch.zeros(self.num_envs, dtype=torch.float, device=self.device)
 
@@ -114,10 +114,10 @@ class RewardManager(ManagerBase):
             # reset episodic sum
             self._episode_sums[key][env_ids] = 0.0
         
-        # print("===========extras_=============")
-        # for k, v in extras.items():
-        #     v_ = v.clone().cpu().item()
-        #     print("{}: {}".format(k, v_))
+        print("===========extras_=============")
+        for k, v in extras.items():
+            v_ = v.clone().cpu().item()
+            print("{}: {}".format(k, v_))
 
         # print("===========extras_percent=============")
         # extras_values_abs = [abs(v.clone().cpu().item()) for v in extras.values()]
@@ -163,22 +163,24 @@ class RewardManager(ManagerBase):
             self._episode_sums[name] += value
             
             value_ = np.abs(value.clone().cpu().numpy())
-            self._max_rewards["max_" + name] = np.max(value_)
+            self._max_rewards_abs["max_" + name] = np.max(value_)
         
-        print("===========max_abs_rewards=============")
-        min_reward = np.finfo(np.float64).max
-        for k, v in self._max_rewards.items():
-            print("{}: {}".format(k, v))
-            min_reward = min(min_reward, v)
-        print("===========max_abs_rewards_ratio=============")
-        for k, v in self._max_rewards.items():
-            print("{}: {}".format(k, v / min_reward))
-        print("===========max_abs_rewards_ratio_reverse=============")
-        for k, v in self._max_rewards.items():
+        standard_rate = 1 / len(self._max_rewards_abs.keys())
+        print("standard_ratio: {}".format(standard_rate))
+        # print("===========max_abs_rewards=============")
+        # min_reward = np.finfo(np.float64).max
+        # for k, v in self._max_rewards.items():
+        #     print("{}: {}".format(k, v))
+        #     min_reward = min(min_reward, v)
+        # print("===========max_abs_rewards_ratio=============")
+        # for k, v in self._max_rewards.items():
+        #     print("{}: {}".format(k, v / min_reward))
+        print("===========max_rewards_abs_standard_ratio=============")
+        for k, v in self._max_rewards_abs.items():
             if v == 0:
                 print("{}_r, v:{}".format(k, 0))
             else:
-                print("{}_r: {}".format(k, min_reward / v))
+                print("{}_r: {}".format(k, standard_rate / v))
 
         return self._reward_buf
 
