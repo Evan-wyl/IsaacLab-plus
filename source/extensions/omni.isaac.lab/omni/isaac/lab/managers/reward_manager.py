@@ -166,7 +166,7 @@ class RewardManager(ManagerBase):
             self._max_rewards["max_" + name] = np.max(value_)
         
         print("===========max_abs_rewards=============")
-        min_reward = 0
+        min_reward = np.float64.max.item()
         for k, v in self._max_rewards.items():
             print("{}: {}".format(k, v))
             min_reward = min(min_reward, v)
