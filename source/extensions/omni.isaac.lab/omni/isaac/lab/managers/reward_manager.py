@@ -52,11 +52,9 @@ class RewardManager(ManagerBase):
         super().__init__(cfg, env)
         # prepare extra info to store individual reward term information
         self._episode_sums = dict()
-        self._max_rewards_abs = dict()
         self._mean_rewards = dict()
         for term_name in self._term_names:
             self._episode_sums[term_name] = torch.zeros(self.num_envs, dtype=torch.float, device=self.device)
-            self._max_rewards_abs["max_" + term_name] = 0.0
             self._mean_rewards["mean_"+ term_name] = 0.0
         # create buffer for managing reward per environment
         self._reward_buf = torch.zeros(self.num_envs, dtype=torch.float, device=self.device)
@@ -121,17 +119,6 @@ class RewardManager(ManagerBase):
         for k, v in extras.items():
             v_ = v.clone().cpu().item()
             print("{}: {}".format(k, v_))
-
-        # print("===========extras_percent=============")
-        # extras_values_abs = [abs(v.clone().cpu().item()) for v in extras.values()]
-        # sum_extras_value = sum(extras_values_abs)
-        # print("sum_extras_value: {}".format(sum_extras_value))
-        # if sum_extras_value != 0:
-        #     for k, v in extras.items():
-        #         v_ = abs(v.clone().cpu().item())
-        #         print("{}: {}".format(k + "_percent", v_ / sum_extras_value))
-        # print("standard: {}".format(1 / len(extras_values_abs)))
-
         
         # reset all the reward terms
         for term_cfg in self._class_term_cfgs:
@@ -168,29 +155,10 @@ class RewardManager(ManagerBase):
             value_ = value.clone().cpu().numpy()
             curr_value_ = self._mean_rewards["mean_" + name]
             self._mean_rewards["mean_" + name] = (np.mean(value_) + curr_value_) / 2
-            
-            value_abs = np.abs(value_)
-            current_value_ = self._max_rewards_abs["max_" + name]
-            self._max_rewards_abs["max_" + name] = max(np.max(value_abs), current_value_)
         
         standard_rate = 1 / len(self._max_rewards_abs.keys())
         print("standard_ratio: {}".format(standard_rate))
-        # print("===========max_abs_rewards=============")
-        # min_reward = np.finfo(np.float64).max
-        # for k, v in self._max_rewards.items():
-        #     print("{}: {}".format(k, v))
-        #     min_reward = min(min_reward, v)
-        # print("===========max_abs_rewards_ratio=============")
-        # for k, v in self._max_rewards.items():
-        #     print("{}: {}".format(k, v / min_reward))
-        print("===========max_rewards_abs_standard_ratio=============")
-        for k, v in self._max_rewards_abs.items():
-            if v == 0:
-                print("{}_r, v:{}".format(k, 0))
-            else:
-                print("{}_r: {}".format(k, standard_rate / v))
-        
-        print("===========mean_abs_rewards=============")
+        print("===========mean_rewards=============")
         for k, v in self._mean_rewards.items():
             print("{}: {}".format(k, v))
         print("===========mean_rewards_abs_standard_ratio=============")
@@ -198,7 +166,7 @@ class RewardManager(ManagerBase):
             if v == 0:
                 print("{}_r, v:{}".format(k, 0))
             else:
-                print("{}_r: {}".format(k, standard_rate / v))
+                print("{}_r: {}".format(k, standard_rate / abs(v)))
 
         return self._reward_buf
 
